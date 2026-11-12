@@ -1,44 +1,43 @@
-<p align="center"><img src="assets/icon.png" width="128" alt="Veda simgesi"></p>
+<p align="center"><img src="assets/icon.png" width="128" alt="Veda icon"></p>
 
 <h1 align="center">Veda</h1>
-<p align="center"><i>Son pencere veda edince uygulama da gider.</i></p>
+<p align="center">Close the last window, and the app goes with it.</p>
 
-Veda, macOS'ta bir uygulamanın **son penceresini kapattığında uygulamayı da kapatan** küçük bir menü çubuğu aracıdır. Windows ve GNOME'daki gibi davranır.
+Veda (Turkish for "farewell") is a small menu bar app for macOS. When you close an app's last window, Veda quits the app, the way Windows and GNOME do.
 
-Swift Quit ve Last Window Quits gibi araçlar macOS 26+ üzerinde çalışmıyor, çünkü pencere kapanınca gelmesi gereken Erişilebilirlik bildirimleri hiç tetiklenmiyor. Veda bildirim beklemek yerine pencereleri saniyede yaklaşık 8 kez kontrol eder. Uygulama son penceresi kapandıktan yaklaşık 0,3 saniye sonra kapanır.
+Swift Quit and Last Window Quits stopped working on macOS 26, because the Accessibility notifications they wait for no longer arrive. Veda doesn't wait for notifications. It checks windows about eight times a second, so an app quits roughly 0.3 seconds after its last window closes.
 
-## Özellikler
-
-- **Doğru ayrım:** Pencereyi küçültmek, uygulamayı gizlemek (⌘H) ya da pencereyi başka bir Space'e taşımak uygulamayı **kapatmaz**. Sadece gerçekten kapatılan son pencere uygulamayı kapatır.
-- **Menü çubuğu simgesi:** Duraklat/devam ettir, son kapatılanları tek tıkla yeniden aç, öndeki uygulamayı kara listeye ekle.
-- **Kara liste:** `~/.config/veda/blacklist.txt` dosyasına her satıra bir bundle id yazılır. Finder ve Discord her zaman hariç tutulur.
-- **Kayıt:** `~/Library/Logs/veda.log`
-
-## Kurulum
+## Install
 
 ```sh
-git clone <bu depo>
-cd Veda
-./build.sh
+curl -fsSL https://raw.githubusercontent.com/AlparslanSemiz/Veda/main/install.sh | zsh
 ```
 
-Ardından **Sistem Ayarları → Gizlilik ve Güvenlik → Erişilebilirlik** bölümünde **Veda**'yı aç.
+The script builds Veda on your Mac (it needs Apple's Command Line Tools), installs it to `~/Applications` and starts it at login. Then turn on **Veda** under System Settings → Privacy & Security → **Accessibility**.
 
-`build.sh` uygulamayı `~/Applications/Veda.app` konumuna kurar ve bir LaunchAgent ile girişte başlatır. Menüden "Veda'dan çık" dersen kapalı kalır, çökerse kendiliğinden yeniden açılır.
+## What it gets right
 
-> **İzin her derlemede sıfırlanmasın:** Kurulumdan önce bir kez `./scripts/make_signing_cert.sh` çalıştır. Bu, yerel bir imza sertifikası oluşturur ve `build.sh` Veda'yı hep onunla imzalar. Sertifika yoksa uygulama ad-hoc imzalanır ve macOS her yeniden derlemede Erişilebilirlik iznini sıfırlar.
+- **Only real closes count.** Minimizing a window, hiding an app with ⌘H or moving a window to another Space never quits anything.
+- **Browsers across Spaces.** Chromium browsers report windows on other Spaces as on screen. Veda checks which Space a window belongs to instead.
+- **Menu bar controls.** Pause Veda, reopen recently quit apps with one click, or exclude the app in front.
+- **Exclusions.** One bundle id per line in `~/.config/veda/blacklist.txt`. Finder and Discord are always excluded.
+- **Log.** Every quit is written to `~/Library/Logs/veda.log`.
 
-## Kaldırma
+## Keep the permission across rebuilds
+
+Run `./scripts/make_signing_cert.sh` once. It creates a local code-signing certificate, and `build.sh` signs Veda with it from then on. Without it the app is signed ad hoc and macOS asks for Accessibility again after every rebuild.
+
+## Uninstall
 
 ```sh
 launchctl bootout gui/$(id -u)/local.$(whoami).veda
-rm -rf ~/Applications/Veda.app ~/Library/LaunchAgents/local.$(whoami).veda.plist ~/.config/veda
+rm -rf ~/Applications/Veda.app ~/Library/LaunchAgents/local.$(whoami).veda.plist ~/.config/veda ~/.local/src/Veda
 ```
 
-## Gereksinimler
+## Requirements
 
-macOS 14+ ve Xcode Command Line Tools (`xcode-select --install`).
+macOS 14 or later and the Xcode Command Line Tools (`xcode-select --install`).
 
-## Lisans
+## License
 
 MIT
