@@ -83,7 +83,27 @@ final class Engine {
         return out
     }
 
+    // Switching Spaces makes an app's windows vanish from AXWindows (it only lists the
+    // current Space), which looks exactly like "last window closed". So any Space change
+    // forgets what we knew and pauses briefly: an app must show a window on the new Space
+    // before closing it there can quit it.
+    var lastSpaces: Set<Int> = []
+    var quietUntil = Date.distantPast
+
+    func spaceChanged() {
+        hadWindows.removeAll()
+        pendingSince.removeAll()
+        quietUntil = Date().addingTimeInterval(1.0)
+    }
+
     func tick() {
+        let spaces = currentSpaces()
+        if spaces != lastSpaces {
+            if !lastSpaces.isEmpty { spaceChanged() }
+            lastSpaces = spaces
+            return
+        }
+        if Date() < quietUntil { return }
         reloadBlacklistIfNeeded()
         var elsewhere: Set<pid_t>?   // computed lazily: only needed when an app looks windowless
         var alive = Set<pid_t>()
@@ -105,7 +125,7 @@ final class Engine {
                 pendingSince[pid] = nil
             } else if hadWindows[pid] == true {
                 if let since = pendingSince[pid] {
-                    if Date().timeIntervalSince(since) >= grace {
+                    if Date().timeIntervalSince(since) >= grace && currentSpaces() == lastSpaces {
                         log("quitting \(app.localizedName ?? "?") (\(app.bundleIdentifier ?? "?"))")
                         hadWindows[pid] = false
                         pendingSince[pid] = nil
@@ -150,6 +170,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             log("waiting for Accessibility permission…")
         }
         log("Veda started")
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.activeSpaceDidChangeNotification, object: nil, queue: .main) { [weak self] _ in
+            self?.engine.spaceChanged()
+        }
         timer = Timer(timeInterval: pollInterval, repeats: true) { [weak self] _ in
             guard let self, self.enabled, AXIsProcessTrusted() else { return }
             self.engine.tick()
