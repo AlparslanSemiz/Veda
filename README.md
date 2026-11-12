@@ -9,11 +9,20 @@ Swift Quit and Last Window Quits stopped working on macOS 26, because the Access
 
 ## Install
 
+With Homebrew:
+
+```sh
+brew install alparslansemiz/tap/veda
+brew services start veda
+```
+
+Or with one line, without Homebrew:
+
 ```sh
 curl -fsSL https://raw.githubusercontent.com/AlparslanSemiz/Veda/main/install.sh | zsh
 ```
 
-The script builds Veda on your Mac (it needs Apple's Command Line Tools), installs it to `~/Applications` and starts it at login. Then turn on **Veda** under System Settings → Privacy & Security → **Accessibility**.
+Both build Veda on your Mac (it needs Apple's Command Line Tools), installs it to `~/Applications` and starts it at login. Then turn on **Veda** under System Settings → Privacy & Security → **Accessibility**.
 
 ## What it gets right
 
