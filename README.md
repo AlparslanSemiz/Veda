@@ -22,7 +22,7 @@ Or with one line, without Homebrew:
 curl -fsSL https://raw.githubusercontent.com/AlparslanSemiz/Veda/main/install.sh | zsh
 ```
 
-Both build Veda on your Mac (it needs Apple's Command Line Tools), installs it to `~/Applications` and starts it at login. Then turn on **Veda** under System Settings → Privacy & Security → **Accessibility**.
+Both build Veda from source on your Mac, so they need Apple's Command Line Tools. Homebrew keeps the app in its own folder and `brew services` starts it at login; the one-line script installs it to `~/Applications` and sets up the login item itself. Then turn on **Veda** under System Settings → Privacy & Security → **Accessibility**.
 
 ## What it gets right
 
