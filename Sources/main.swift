@@ -61,9 +61,26 @@ final class Engine {
             var sr: CFTypeRef?
             AXUIElementCopyAttributeValue(w, kAXSubroleAttribute as CFString, &sr)
             let sub = sr as? String ?? ""
-            if sub == kAXStandardWindowSubrole as String || sub == "AXDialog" { n += 1 }
+            // Floating windows count too: a picture-in-picture video is the only window a
+            // browser has left after you close the main one, and it must keep the app alive.
+            if [kAXStandardWindowSubrole as String, "AXDialog", "AXFloatingWindow", "AXSystemFloatingWindow"].contains(sub) { n += 1 }
         }
         return n
+    }
+
+    /// Apps with any real window visible right now, at any level (PiP players float above
+    /// normal windows and may not show up in AXWindows at all).
+    func pidsWithVisibleWindows() -> Set<pid_t> {
+        guard let all = CGWindowListCopyWindowInfo([.optionOnScreenOnly, .excludeDesktopElements], kCGNullWindowID) as? [[String: Any]] else { return [] }
+        var out = Set<pid_t>()
+        for w in all {
+            guard let layer = w[kCGWindowLayer as String] as? Int, layer >= 0, layer < 24,     // not menu bar / status items
+                  let pid = w[kCGWindowOwnerPID as String] as? pid_t,
+                  (w[kCGWindowAlpha as String] as? Double ?? 1) > 0.05 else { continue }
+            let b = w[kCGWindowBounds as String] as? [String: CGFloat] ?? [:]
+            if (b["Width"] ?? 0) >= 120 && (b["Height"] ?? 0) >= 68 { out.insert(pid) }
+        }
+        return out
     }
 
     func pidsWithWindowsOnOtherSpaces() -> Set<pid_t> {
@@ -106,7 +123,8 @@ final class Engine {
         }
         if Date() < quietUntil { return }
         reloadBlacklistIfNeeded()
-        var elsewhere: Set<pid_t>?   // computed lazily: only needed when an app looks windowless
+        var elsewhere: Set<pid_t>?
+        var visible: Set<pid_t>?   // computed lazily: only needed when an app looks windowless
         var alive = Set<pid_t>()
         for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
             let pid = app.processIdentifier
@@ -120,6 +138,10 @@ final class Engine {
             if !has && hadWindows[pid] == true {
                 if elsewhere == nil { elsewhere = pidsWithWindowsOnOtherSpaces() }
                 has = elsewhere!.contains(pid)
+                if !has {
+                    if visible == nil { visible = pidsWithVisibleWindows() }
+                    has = visible!.contains(pid)
+                }
             }
             if has {
                 hadWindows[pid] = true
