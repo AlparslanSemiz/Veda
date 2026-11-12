@@ -2,6 +2,7 @@
 
 <h1 align="center">Veda</h1>
 <p align="center">Close the last window, and the app goes with it.</p>
+<p align="center"><a href="https://github.com/AlparslanSemiz/Veda/actions/workflows/build.yml"><img src="https://github.com/AlparslanSemiz/Veda/actions/workflows/build.yml/badge.svg" alt="build"></a> <a href="https://github.com/AlparslanSemiz/Veda/releases/latest"><img src="https://img.shields.io/github/v/release/AlparslanSemiz/Veda" alt="release"></a></p>
 
 Veda (Turkish for "farewell") is a small menu bar app for macOS. When you close an app's last window, Veda quits the app, the way Windows and GNOME do.
 
