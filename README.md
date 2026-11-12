@@ -26,7 +26,7 @@ Ardından **Sistem Ayarları → Gizlilik ve Güvenlik → Erişilebilirlik** b�
 
 `build.sh` uygulamayı `~/Applications/Veda.app` konumuna kurar ve bir LaunchAgent ile girişte başlatır. Menüden "Veda'dan çık" dersen kapalı kalır, çökerse kendiliğinden yeniden açılır.
 
-> Uygulama ad-hoc imzalıdır. Her yeniden derlemeden sonra macOS izni sıfırlayabilir. Öyle olursa Erişilebilirlik listesinden Veda'yı kaldırıp yeniden ekle.
+> **İzin her derlemede sıfırlanmasın:** Kurulumdan önce bir kez `./scripts/make_signing_cert.sh` çalıştır. Bu, yerel bir imza sertifikası oluşturur ve `build.sh` Veda'yı hep onunla imzalar. Sertifika yoksa uygulama ad-hoc imzalanır ve macOS her yeniden derlemede Erişilebilirlik iznini sıfırlar.
 
 ## Kaldırma
 

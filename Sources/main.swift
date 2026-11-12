@@ -73,8 +73,9 @@ final class Engine {
         for w in all {
             guard (w[kCGWindowLayer as String] as? Int) == 0,
                   let pid = w[kCGWindowOwnerPID as String] as? pid_t,
-                  let id = w[kCGWindowNumber as String] as? UInt32,
-                  (w[kCGWindowIsOnscreen as String] as? Bool) != true else { continue }
+                  let id = w[kCGWindowNumber as String] as? UInt32 else { continue }
+            // Don't trust kCGWindowIsOnscreen here: Chromium browsers (Brave, Chrome…) report
+            // windows on other Spaces as on-screen. Space membership is the reliable signal.
             let b = w[kCGWindowBounds as String] as? [String: CGFloat] ?? [:]
             guard (b["Width"] ?? 0) >= 120, (b["Height"] ?? 0) >= 80 else { continue }
             let sp = CGSCopySpacesForWindows(conn, 7, [id] as CFArray)?.takeRetainedValue() as? [Int] ?? []

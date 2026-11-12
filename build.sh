@@ -38,7 +38,13 @@ cat > "$APP/Contents/Info.plist" <<EOF
 <key>NSHumanReadableCopyright</key><string>Son pencere veda edince uygulama da gider.</string>
 </dict></plist>
 EOF
-codesign --force -s - --identifier "$BUNDLE_ID" "$APP"
+SIGN_ID="-"
+if security find-identity -p codesigning 2>/dev/null | grep -q "Veda Local Signing"; then
+  SIGN_ID="Veda Local Signing"
+else
+  echo "  (not: scripts/make_signing_cert.sh çalıştırılmamış, ad-hoc imza kullanılıyor)"
+fi
+codesign --force -s "$SIGN_ID" --identifier "$BUNDLE_ID" "$APP"
 
 [[ "${1:-}" == "--no-install" ]] && { echo "✓ $APP"; exit 0; }
 
