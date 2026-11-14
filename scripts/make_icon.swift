@@ -3,6 +3,7 @@
 // (No SF Symbols: Apple's license doesn't allow them in app icons.)
 import Cocoa
 
+// swiftlint:disable:next identifier_name
 let S: CGFloat = 1024
 let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(S), pixelsHigh: Int(S), bitsPerSample: 8,
                            samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
@@ -48,4 +49,5 @@ p.curve(to: CGPoint(x: w.maxX - 90, y: w.minY + 110),
         controlPoint1: CGPoint(x: w.minX + 160, y: w.minY + 190), controlPoint2: CGPoint(x: w.maxX - 160, y: w.minY + 30))
 c(237, 84, 115).setStroke(); p.stroke()
 
+// swiftlint:disable:next force_try
 try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: CommandLine.arguments[1]))

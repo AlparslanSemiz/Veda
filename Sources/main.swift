@@ -16,7 +16,7 @@ let grace = 0.25
 let blacklistPath = NSString(string: "~/.config/veda/blacklist.txt").expandingTildeInPath
 let defaultBlacklist: Set<String> = ["com.apple.finder", "com.hnc.Discord", "com.apple.ScreenSharing"]
 
-func log(_ s: String) { FileHandle.standardError.write("\(Date()) \(s)\n".data(using: .utf8)!) }
+func log(_ s: String) { FileHandle.standardError.write(Data("\(Date()) \(s)\n".utf8)) }
 
 final class Engine {
     let conn = CGSMainConnectionID()
@@ -114,6 +114,7 @@ final class Engine {
         quietUntil = Date().addingTimeInterval(1.0)
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func tick() {
         let spaces = currentSpaces()
         if spaces != lastSpaces {
@@ -184,6 +185,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
         engine.onQuit = { [weak self] app in
             guard let self else { return }
+            // swiftlint:disable:next force_cast
             let icon = app.icon.map { i -> NSImage in let c = i.copy() as! NSImage; c.size = NSSize(width: 16, height: 16); return c }
             self.recents.insert(Recent(name: app.localizedName ?? "?", url: app.bundleURL, icon: icon, date: Date()), at: 0)
             if self.recents.count > 8 { self.recents.removeLast() }
@@ -226,7 +228,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         menu.addItem(t)
         menu.addItem(.separator())
 
-        let header = NSMenuItem(title: recents.isEmpty ? "Henüz kapatılan uygulama yok" : "Son kapatılanlar (tıkla → yeniden aç)", action: nil, keyEquivalent: "")
+        let headerTitle = recents.isEmpty ? "Henüz kapatılan uygulama yok" : "Son kapatılanlar (tıkla → yeniden aç)"
+        let header = NSMenuItem(title: headerTitle, action: nil, keyEquivalent: "")
         header.isEnabled = false
         menu.addItem(header)
         let fmt = RelativeDateTimeFormatter(); fmt.locale = Locale(identifier: "tr_TR"); fmt.unitsStyle = .short
@@ -273,12 +276,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     @objc func blacklistFront(_ s: NSMenuItem) {
         guard let bid = s.representedObject as? String else { return }
         ensureBlacklistFile()
-        if let h = FileHandle(forWritingAtPath: blacklistPath) { h.seekToEndOfFile(); h.write("\(bid)\n".data(using: .utf8)!); h.closeFile() }
+        if let h = FileHandle(forWritingAtPath: blacklistPath) { h.seekToEndOfFile(); h.write(Data("\(bid)\n".utf8)); h.closeFile() }
         engine.blacklistMTime = nil
     }
     @objc func editBlacklist() {
         ensureBlacklistFile()
-        NSWorkspace.shared.open([URL(fileURLWithPath: blacklistPath)], withApplicationAt: URL(fileURLWithPath: "/System/Applications/TextEdit.app"), configuration: NSWorkspace.OpenConfiguration())
+        NSWorkspace.shared.open([URL(fileURLWithPath: blacklistPath)],
+                                withApplicationAt: URL(fileURLWithPath: "/System/Applications/TextEdit.app"),
+                                configuration: NSWorkspace.OpenConfiguration())
     }
     @objc func showLog() {
         NSWorkspace.shared.open(URL(fileURLWithPath: NSString(string: "~/Library/Logs/veda.log").expandingTildeInPath))
