@@ -40,6 +40,15 @@ Run `./scripts/make_signing_cert.sh` once. It creates a local code-signing certi
 
 ## Uninstall
 
+If you installed with Homebrew:
+
+```sh
+brew services stop veda
+brew uninstall veda
+```
+
+If you installed with the script:
+
 ```sh
 launchctl bootout gui/$(id -u)/local.$(whoami).veda
 rm -rf ~/Applications/Veda.app ~/Library/LaunchAgents/local.$(whoami).veda.plist ~/.config/veda ~/.local/src/Veda
