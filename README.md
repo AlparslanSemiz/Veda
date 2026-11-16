@@ -2,7 +2,8 @@
 
 <h1 align="center">Veda</h1>
 <p align="center">Close the last window, and the app goes with it.</p>
-<p align="center"><a href="https://github.com/AlparslanSemiz/Veda/actions/workflows/build.yml"><img src="https://github.com/AlparslanSemiz/Veda/actions/workflows/build.yml/badge.svg" alt="build"></a> <a href="https://github.com/AlparslanSemiz/Veda/releases/latest"><img src="https://img.shields.io/github/v/release/AlparslanSemiz/Veda" alt="release"></a></p>
+<p align="center"><a href="https://github.com/AlparslanSemiz/Veda/actions/workflows/build.yml"><img src="https://img.shields.io/github/actions/workflow/status/AlparslanSemiz/Veda/build.yml?style=flat&label=build" alt="build"></a> <a href="https://github.com/AlparslanSemiz/Veda/releases/latest"><img src="https://img.shields.io/github/v/release/AlparslanSemiz/Veda?style=flat&color=555" alt="release"></a> <img src="https://img.shields.io/badge/macOS-14%2B-555?style=flat" alt="macOS 14+"> <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-555?style=flat" alt="MIT license"></a></p>
+<p align="center"><b>Install:</b> <code>brew install alparslansemiz/tap/veda</code> · <a href="#install">other ways</a></p>
 
 Veda (Turkish for "farewell") is a small menu bar app for macOS. When you close an app's last window, Veda quits the app, the way Windows and GNOME do.
 
@@ -39,6 +40,15 @@ Run `./scripts/make_signing_cert.sh` once. It creates a local code-signing certi
 
 ## Uninstall
 
+If you installed with Homebrew:
+
+```sh
+brew services stop veda
+brew uninstall veda
+```
+
+If you installed with the script:
+
 ```sh
 launchctl bootout gui/$(id -u)/local.$(whoami).veda
 rm -rf ~/Applications/Veda.app ~/Library/LaunchAgents/local.$(whoami).veda.plist ~/.config/veda ~/.local/src/Veda
@@ -47,6 +57,10 @@ rm -rf ~/Applications/Veda.app ~/Library/LaunchAgents/local.$(whoami).veda.plist
 ## Requirements
 
 macOS 14 or later and the Xcode Command Line Tools (`xcode-select --install`).
+
+## Status
+
+Released as v1.0.1. Written for macOS 26, where the older tools stopped working.
 
 ## License
 
